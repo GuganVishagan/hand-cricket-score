@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket Score App</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .score-display {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #1a73e8;
+        }
+        .overs {
+            font-size: 24px;
+            color: #666;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #1a73e8;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #1557b0;
+        }
+        .reset-btn {
+            background-color: #dc3545;
+        }
+        .reset-btn:hover {
+            background-color: #c82333;
+        }
+        .team-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="team-info">
+            <div id="batting-team">Batting: Team A</div>
+            <div id="bowling-team">Bowling: Team B</div>
+        </div>
+        
+        <div class="score-display">
+            <div class="score" id="score">0/0</div>
+            <div class="overs" id="overs">0.0 Overs</div>
+        </div>
+
+        <div class="controls">
+            <button onclick="updateScore(1)">1 Run</button>
+            <button onclick="updateScore(2)">2 Runs</button>
+            <button onclick="updateScore(3)">3 Runs</button>
+            <button onclick="updateScore(4)">4 Runs</button>
+            <button onclick="updateScore(6)">6 Runs</button>
+            <button onclick="updateWicket()">Wicket</button>
+            <button onclick="updateBall()">Ball</button>
+            <button onclick="resetScore()" class="reset-btn">Reset</button>
+        </div>
+    </div>
+
+    <script>
+        let currentScore = {
+            runs: 0,
+            wickets: 0,
+            overs: 0,
+            balls: 0
+        };
+
+        function updateScore(runs) {
+            fetch('/api/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ runs: runs })
+            })
+            .then(response => response.json())
+            .then(data => {
+                updateDisplay(data);
+            });
+        }
+
+        function updateWicket() {
+            fetch('/api/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ wickets: 1 })
+            })
+            .then(response => response.json())
+            .then(data => {
+                updateDisplay(data);
+            });
+        }
+
+        function updateBall() {
+            fetch('/api/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ balls: 1 })
+            })
+            .then(response => response.json())
+            .then(data => {
+                updateDisplay(data);
+            });
+        }
+
+        function resetScore() {
+            fetch('/api/reset', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                updateDisplay(data);
+            });
+        }
+
+        function updateDisplay(data) {
+            document.getElementById('score').textContent = 
+                `${data.runs}/${data.wickets}`;
+            document.getElementById('overs').textContent = 
+                `${data.overs}.${data.balls} Overs`;
+            document.getElementById('batting-team').textContent = 
+                `Batting: ${data.batting_team}`;
+            document.getElementById('bowling-team').textContent = 
+                `Bowling: ${data.bowling_team}`;
+        }
+
+        // Initial load
+        fetch('/api/score')
+            .then(response => response.json())
+            .then(data => {
+                updateDisplay(data);
+            });
+    </script>
+</body>
+</html> 
