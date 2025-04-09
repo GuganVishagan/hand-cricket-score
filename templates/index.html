@@ -73,6 +73,24 @@
             border-radius: 5px;
             display: none;
         }
+        .target-score {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #d4edda;
+            border-radius: 5px;
+            display: none;
+        }
+        .match-result {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #cce5ff;
+            border-radius: 5px;
+            display: none;
+            font-size: 24px;
+            font-weight: bold;
+        }
         .error-message {
             color: #dc3545;
             text-align: center;
@@ -91,6 +109,12 @@
         <div class="first-innings" id="first-innings">
             First Innings Score: <span id="first-innings-score">0</span>
         </div>
+
+        <div class="target-score" id="target-score">
+            Target: <span id="target">0</span>
+        </div>
+
+        <div class="match-result" id="match-result"></div>
 
         <div class="error-message" id="error-message"></div>
         
@@ -231,6 +255,20 @@
                 document.getElementById('first-innings-score').textContent = data.first_innings_score;
             } else {
                 document.getElementById('first-innings').style.display = 'none';
+            }
+
+            if (data.target > 0) {
+                document.getElementById('target-score').style.display = 'block';
+                document.getElementById('target').textContent = data.target;
+            } else {
+                document.getElementById('target-score').style.display = 'none';
+            }
+
+            if (data.result) {
+                document.getElementById('match-result').style.display = 'block';
+                document.getElementById('match-result').textContent = data.result;
+            } else {
+                document.getElementById('match-result').style.display = 'none';
             }
         }
 

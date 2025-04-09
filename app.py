@@ -16,7 +16,9 @@ score = {
     'bowling_team': 'Team B',
     'is_first_innings': True,
     'first_innings_score': 0,
-    'is_all_out': False
+    'is_all_out': False,
+    'target': 0,
+    'result': None
 }
 
 @app.route('/')
@@ -37,6 +39,9 @@ def update_score():
     
     if 'runs' in data:
         score['runs'] += data['runs']
+        if not score['is_first_innings'] and score['runs'] > score['target']:
+            score['result'] = f"{score['batting_team']} won by {10 - score['wickets']} wickets"
+            score['is_all_out'] = True
     if 'wickets' in data:
         if score['wickets'] < 10:
             score['wickets'] += data['wickets']
@@ -44,12 +49,18 @@ def update_score():
                 score['is_all_out'] = True
                 if score['is_first_innings']:
                     score['first_innings_score'] = score['runs']
+                    score['target'] = score['runs'] + 1
                     score['runs'] = 0
                     score['wickets'] = 0
                     score['overs'] = 0
                     score['balls'] = 0
                     score['is_first_innings'] = False
                     score['batting_team'], score['bowling_team'] = score['bowling_team'], score['batting_team']
+                else:
+                    if score['runs'] < score['target']:
+                        score['result'] = f"{score['bowling_team']} won by {score['target'] - score['runs']} runs"
+                    elif score['runs'] == score['target']:
+                        score['result'] = "Match Tied"
     if 'balls' in data:
         score['balls'] += data['balls']
         if score['balls'] == 6:
@@ -72,7 +83,9 @@ def reset_score():
         'bowling_team': score['team2'],
         'is_first_innings': True,
         'first_innings_score': 0,
-        'is_all_out': False
+        'is_all_out': False,
+        'target': 0,
+        'result': None
     }
     return jsonify(score)
 
