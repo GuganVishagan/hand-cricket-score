@@ -13,7 +13,10 @@ score = {
     'team1': 'Team A',
     'team2': 'Team B',
     'batting_team': 'Team A',
-    'bowling_team': 'Team B'
+    'bowling_team': 'Team B',
+    'is_first_innings': True,
+    'first_innings_score': 0,
+    'is_all_out': False
 }
 
 @app.route('/')
@@ -29,10 +32,24 @@ def update_score():
     global score
     data = request.json
     
+    if score['is_all_out']:
+        return jsonify({'error': 'Innings is over'}), 400
+    
     if 'runs' in data:
         score['runs'] += data['runs']
     if 'wickets' in data:
-        score['wickets'] += data['wickets']
+        if score['wickets'] < 10:
+            score['wickets'] += data['wickets']
+            if score['wickets'] >= 10:
+                score['is_all_out'] = True
+                if score['is_first_innings']:
+                    score['first_innings_score'] = score['runs']
+                    score['runs'] = 0
+                    score['wickets'] = 0
+                    score['overs'] = 0
+                    score['balls'] = 0
+                    score['is_first_innings'] = False
+                    score['batting_team'], score['bowling_team'] = score['bowling_team'], score['batting_team']
     if 'balls' in data:
         score['balls'] += data['balls']
         if score['balls'] == 6:
@@ -51,8 +68,11 @@ def reset_score():
         'balls': 0,
         'team1': score['team1'],
         'team2': score['team2'],
-        'batting_team': score['batting_team'],
-        'bowling_team': score['bowling_team']
+        'batting_team': score['team1'],
+        'bowling_team': score['team2'],
+        'is_first_innings': True,
+        'first_innings_score': 0,
+        'is_all_out': False
     }
     return jsonify(score)
 

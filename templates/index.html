@@ -65,6 +65,20 @@
             background-color: #f8f9fa;
             border-radius: 5px;
         }
+        .first-innings {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            display: none;
+        }
+        .error-message {
+            color: #dc3545;
+            text-align: center;
+            margin-bottom: 10px;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -73,6 +87,12 @@
             <div id="batting-team">Batting: Team A</div>
             <div id="bowling-team">Bowling: Team B</div>
         </div>
+        
+        <div class="first-innings" id="first-innings">
+            First Innings Score: <span id="first-innings-score">0</span>
+        </div>
+
+        <div class="error-message" id="error-message"></div>
         
         <div class="score-display">
             <div class="score" id="score">0/0</div>
@@ -107,9 +127,23 @@
                 },
                 body: JSON.stringify({ runs: runs })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.error || 'An error occurred');
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
                 updateDisplay(data);
+            })
+            .catch(error => {
+                document.getElementById('error-message').textContent = error.message;
+                document.getElementById('error-message').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('error-message').style.display = 'none';
+                }, 3000);
             });
         }
 
@@ -121,9 +155,23 @@
                 },
                 body: JSON.stringify({ wickets: 1 })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.error || 'An error occurred');
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
                 updateDisplay(data);
+            })
+            .catch(error => {
+                document.getElementById('error-message').textContent = error.message;
+                document.getElementById('error-message').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('error-message').style.display = 'none';
+                }, 3000);
             });
         }
 
@@ -135,9 +183,23 @@
                 },
                 body: JSON.stringify({ balls: 1 })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.error || 'An error occurred');
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
                 updateDisplay(data);
+            })
+            .catch(error => {
+                document.getElementById('error-message').textContent = error.message;
+                document.getElementById('error-message').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('error-message').style.display = 'none';
+                }, 3000);
             });
         }
 
@@ -163,6 +225,13 @@
                 `Batting: ${data.batting_team}`;
             document.getElementById('bowling-team').textContent = 
                 `Bowling: ${data.bowling_team}`;
+            
+            if (data.first_innings_score > 0) {
+                document.getElementById('first-innings').style.display = 'block';
+                document.getElementById('first-innings-score').textContent = data.first_innings_score;
+            } else {
+                document.getElementById('first-innings').style.display = 'none';
+            }
         }
 
         // Initial load
